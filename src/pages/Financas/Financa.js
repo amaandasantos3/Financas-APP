@@ -7,7 +7,7 @@ import {
   TextInput,
   Alert,
   TouchableOpacity,
-  ImageBackground
+  ImageBackground,
 } from 'react-native';
 import moment from 'moment';
 import {FAB, Button, Card} from 'react-native-elements';
@@ -15,6 +15,7 @@ import {useFinancas} from '../../context/FinancasContext';
 import {TextInputMask} from 'react-native-masked-text';
 import Row from '../../components/Row';
 import img from '../../utils/img/fundo1.jpeg';
+import { Icon } from 'react-native-elements/dist/icons/Icon';
 
 export default ({route: {params}, navigation}) => {
   const {createFinancas, updateFinancas} = useFinancas();
@@ -29,16 +30,40 @@ export default ({route: {params}, navigation}) => {
     console.debug(objAdditionalInfo);
   }, [objAdditionalInfo]);
 
+  function addAdditional() {
+    let error = null;
+
+    if (!additionalInfoName) {
+      error = 'Nome incorreto';
+    }
+
+    if (!additionalInfoValue) {
+      error = error ? 'Nome e valor incorreto' : 'Valor incorreto';
+    }
+
+    setError(error);
+
+    if (!error) {
+      setObjAdditionalInfo({
+        ...objAdditionalInfo,
+        [additionalInfoName]: additionalInfoValue,
+      });
+    }
+  }
+
   const _id = params?._id;
   const [date, setDate] = useState(params?.date);
   const [item, setItem] = useState(params?.item || '');
   const [value, setValue] = useState(params?.value?.toString() || '');
-  const [additionalInfo, setAdditionalInfo] = useState('');
-  const [objAdditionalInfo, setObjAdditionalInfo] = useState({a: 1, b: 2});
+  const [additionalInfoName, setAdditionalInfoName] = useState('');
+  const [additionalInfoValue, setAdditionalInfoValue] = useState('');
+  const [objAdditionalInfo, setObjAdditionalInfo] = useState(
+    params?.additionalInfo || {},
+  );
+  const [error, setError] = useState();
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
-     
       <View style={{marginTop: 35}}>
         <Text
           style={{
@@ -77,24 +102,44 @@ export default ({route: {params}, navigation}) => {
           value={value}
         />
 
-        <TextInput
-          style={styles.input}
-          onChangeText={setAdditionalInfo}
-          placeholder="Adicionais"
-          value={additionalInfo}
-        />
+        <View>
+          <Text style={{textAlign: 'center', fontWeight: 'bold'}}>
+            Informação adicional
+          </Text>
+          <Row>
+            <TextInput
+              style={[styles.input, styles.additional]}
+              onChangeText={setAdditionalInfoName}
+              placeholder="Nome"
+              value={additionalInfoName}
+            />
+            <TextInput
+              style={[styles.input, styles.additional]}
+              onChangeText={setAdditionalInfoValue}
+              placeholder="Valor"
+              value={additionalInfoValue}
+            />
+            <FAB
+              size={'small'}
+              style={styles.additionalBtn}
+              icon={{name: 'add', color: 'white'}}
+              color={'#3d70a7'}
+              onPress={addAdditional}
+            />
+          </Row>
+          <Text style={styles.error}>{error}</Text>
+        </View>
       </View>
 
       <View>
-      <Text style={{textAlign: 'center', fontWeight: 'bold'}}>Informação adicional</Text>
-      {Object.entries(objAdditionalInfo).map(([key, value]) => (
-        <Row>
-          <Text>{key}</Text>
-          <Text>{value}</Text>
-        </Row>
-      ))}
+        {Object.entries(objAdditionalInfo).map(([key, value]) => (
+          <Row key={key}>
+            <Text>{key}</Text>
+            <Icon name={'east'}/>
+            <Text>{value}</Text>
+          </Row>
+        ))}
       </View>
-      
 
       <View style={{justifyContent: 'center', alignItems: 'center'}}>
         <TouchableOpacity
@@ -106,27 +151,27 @@ export default ({route: {params}, navigation}) => {
             width: '50%',
           }}
           onPress={() => {
-            if(_id) {
+            if (_id) {
               updateFinancas(_id, {
                 date,
                 item,
                 value,
-                additionalInfo,
+                additionalInfo: objAdditionalInfo,
               });
             } else {
               createFinancas({
                 date,
                 item,
                 value,
-                additionalInfo,
+                additionalInfo: objAdditionalInfo,
               });
             }
-
           }}>
-          <Text style={{textAlign: 'center', marginTop: '6%', color:'#fff'}}>Salvar</Text>
+          <Text style={{textAlign: 'center', marginTop: '6%', color: '#fff'}}>
+            Salvar
+          </Text>
         </TouchableOpacity>
       </View>
-   
     </SafeAreaView>
   );
 };
@@ -140,9 +185,20 @@ const styles = StyleSheet.create({
     borderColor: 'grey',
     padding: 10,
   },
+  additional: {
+    flex: 0.5,
+    marginHorizontal: 6,
+  },
+  additionalBtn: {
+    marginHorizontal: 6,
+  },
   image: {
     flex: 1,
     alignSelf: 'stretch',
     width: null,
+  },
+  error: {
+    color: 'red',
+    textAlign: 'center',
   },
 });

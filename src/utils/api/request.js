@@ -1,5 +1,6 @@
 import api from './api';
 import {Alert} from 'react-native';
+import { baseProps } from 'react-native-gesture-handler/lib/typescript/handlers/gestureHandlers';
 
 export const listFinancas = async (page = 1) => {
   try {
