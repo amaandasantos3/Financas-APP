@@ -31,6 +31,7 @@ export const createFinancas = async data => {
     if (response) {
       console.log('create - finanças', response.data);
       Alert.alert('Sucesso!', 'Criado com sucesso!');
+      
       return response.data;
     }
   } catch (error) {

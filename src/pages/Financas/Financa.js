@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,9 @@ import {TextInputMask} from 'react-native-masked-text';
 import Row from '../../components/Row';
 import img from '../../utils/img/fundo1.jpeg';
 import { Icon } from 'react-native-elements/dist/icons/Icon';
+import FinancasContext from '../../context/FinancasContext';
+
+
 
 export default ({route: {params}, navigation}) => {
   const {createFinancas, updateFinancas} = useFinancas();
@@ -61,6 +64,13 @@ export default ({route: {params}, navigation}) => {
     params?.additionalInfo || {},
   );
   const [error, setError] = useState();
+  const {financas, getFinancas} = useContext(FinancasContext);
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    wait(2000).then(() => setRefreshing(false));
+  }, []);
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
@@ -71,11 +81,11 @@ export default ({route: {params}, navigation}) => {
             fontSize: 22,
             fontWeight: 'bold',
             color: '#3d70a7',
-          }}>
-          Adicione seus gastos
+        }}>
+        Salvar Finança
         </Text>
       </View>
-      <View style={{marginTop: 35}}>
+      <View style={{marginTop: 30}}>
         <TextInputMask
           placeholder="Data"
           style={styles.input}
@@ -165,7 +175,7 @@ export default ({route: {params}, navigation}) => {
                 value,
                 additionalInfo: objAdditionalInfo,
               });
-            }
+            } 
           }}>
           <Text style={{textAlign: 'center', marginTop: '6%', color: '#fff'}}>
             Salvar
